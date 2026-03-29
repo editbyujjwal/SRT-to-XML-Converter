@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRT to XML Converter</title>
+    <title>SRT to XML Converter | @editbyujjwal</title>
     
-    <!-- Google Fonts: Exclusively Inter -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital@1&family=Poppins:wght@700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,10 +20,13 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                        lora: ['Lora', 'serif'],
                     },
                     animation: {
                         'blob': 'blob 7s infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
                     },
                     keyframes: {
                         blob: {
@@ -31,6 +34,14 @@
                             '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
                             '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
                             '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
                         }
                     }
                 }
@@ -39,21 +50,25 @@
     </script>
 
     <style>
-        /* Custom sleek scrollbar design */
+        /* Custom sleek scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Background Noise Texture for Premium Feel */
+        /* Premium Noise Texture */
         .bg-noise {
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
         }
 
-        /* Smooth Toast Animations */
+        /* Toast Animations */
         .toast-enter { transform: translateY(100%) scale(0.9); opacity: 0; }
         .toast-enter-active { transform: translateY(0) scale(1); opacity: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .toast-leave { transform: translateY(20px) scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        /* View Transitions */
+        .view-hidden { display: none !important; }
+        .view-active { display: flex !important; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800 min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center py-10 px-4 sm:px-6 antialiased selection:bg-indigo-500 selection:text-white">
@@ -61,15 +76,15 @@
     <!-- Ambient Background Gradients -->
     <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-noise">
         <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[100px] mix-blend-multiply animate-blob"></div>
-        <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-300/20 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-purple-300/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-300/20 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-purple-300/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Main Application Wrapper (Tight 560px width for focus) -->
-    <div class="w-full max-w-[560px] z-10 flex flex-col gap-6">
+    <!-- Main Application Wrapper -->
+    <div class="w-full max-w-[800px] z-10 flex flex-col gap-6 relative">
         
-        <!-- Header -->
-        <header class="flex justify-between items-center px-2">
+        <!-- Global Header -->
+        <header class="flex justify-between items-center px-4 w-full max-w-[560px] mx-auto">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600 w-5 h-5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
@@ -83,82 +98,164 @@
             </a>
         </header>
 
-        <!-- Main Card Container -->
-        <main class="w-full bg-white/80 backdrop-blur-2xl border border-white rounded-[28px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden">
+        <!-- ========================================== -->
+        <!-- STEP 1: STYLE SELECTION PAGE               -->
+        <!-- ========================================== -->
+        <div id="step1" class="w-full flex flex-col gap-8 view-active">
             
-            <!-- Inner subtle glow top -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent blur-sm"></div>
-
-            <!-- Title & Subtitle -->
-            <div class="text-center flex flex-col gap-1.5 mt-2">
-                <h2 class="font-bold text-2xl sm:text-3xl text-slate-900 tracking-tight">
-                    Convert to <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">XML</span>
+            <div class="text-center mt-4">
+                <span class="text-indigo-600 font-bold tracking-wider text-xs uppercase mb-2 block">Step 1 of 2</span>
+                <h2 class="font-bold text-3xl sm:text-4xl text-slate-900 tracking-tight">
+                    Choose Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">Style</span>
                 </h2>
-                <p class="text-sm text-slate-500 font-medium">Upload your SRT file or paste the text directly.</p>
+                <p class="text-slate-500 font-medium mt-2 max-w-md mx-auto">Select a preset design for your subtitles. This configures the XML settings automatically.</p>
             </div>
 
-            <!-- Interaction Zone -->
-            <div class="flex flex-col gap-5">
+            <!-- Style Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                <!-- Upload Box -->
-                <div id="dropZone" class="group relative w-full h-32 rounded-2xl border-[1.5px] border-dashed border-slate-300 bg-slate-50/50 hover:bg-indigo-50/50 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.1)] transition-all duration-300 cursor-pointer flex flex-col items-center justify-center overflow-hidden">
-                    <input type="file" id="fileInput" accept=".srt,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                    
-                    <div class="w-10 h-10 mb-2 rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+                <!-- Style 1: Minimal -->
+                <button onclick="selectStyle('minimal')" id="card-minimal" class="style-card group relative text-left bg-white/60 backdrop-blur-xl border-2 border-transparent hover:border-indigo-300 rounded-[24px] p-5 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="w-full h-24 bg-slate-900 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative border border-slate-800">
+                        <span class="text-[#a0a0a0] font-sans text-xs tracking-wide relative z-10">standard minimal text</span>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                     </div>
-                    
-                    <div id="fileStatusContainer" class="flex flex-col items-center">
-                        <h3 class="font-medium text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Click or drag file here</h3>
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-slate-800 text-lg">Minimal</h3>
+                        <div class="radio-indicator w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center transition-colors"><div class="inner-dot w-2.5 h-2.5 bg-indigo-600 rounded-full opacity-0 scale-50 transition-all"></div></div>
                     </div>
-                    
-                    <!-- Success state badge (Hidden initially) -->
-                    <div id="fileStatus" class="absolute inset-0 bg-indigo-50/95 backdrop-blur-sm hidden flex-col items-center justify-center border-indigo-200 z-20">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/></svg>
-                        </div>
-                        <span id="fileNameDisplay" class="text-xs font-semibold text-indigo-700 max-w-[80%] truncate"></span>
-                    </div>
-                </div>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Small, grey, centered. Perfect for subtle, non-intrusive captions.</p>
+                </button>
 
-                <!-- Divider -->
-                <div class="flex items-center gap-3">
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">or paste</span>
-                    <div class="h-px flex-1 bg-slate-200"></div>
-                </div>
+                <!-- Style 2: Bold Pro -->
+                <button onclick="selectStyle('bold')" id="card-bold" class="style-card group relative text-left bg-white/60 backdrop-blur-xl border-2 border-transparent hover:border-indigo-300 rounded-[24px] p-5 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="w-full h-24 bg-slate-900 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative border border-slate-800">
+                        <span class="text-white font-sans font-black text-xl tracking-tight relative z-10 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">BOLD PRO</span>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-slate-800 text-lg">Bold Pro</h3>
+                        <div class="radio-indicator w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center transition-colors"><div class="inner-dot w-2.5 h-2.5 bg-indigo-600 rounded-full opacity-0 scale-50 transition-all"></div></div>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Large, white, high-impact weight. Great for retention and emphasis.</p>
+                </button>
 
-                <!-- Text Area -->
-                <div class="relative group">
-                    <textarea 
-                        id="srtInput" 
-                        placeholder="00:00:00,000 --> 00:00:02,000&#10;Your subtitles here..." 
-                        class="w-full h-28 bg-slate-50/80 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all resize-y placeholder:text-slate-400 shadow-inner"
-                    ></textarea>
-                </div>
+                <!-- Style 3: Cinematic -->
+                <button onclick="selectStyle('cinematic')" id="card-cinematic" class="style-card group relative text-left bg-white/60 backdrop-blur-xl border-2 border-transparent hover:border-indigo-300 rounded-[24px] p-5 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="w-full h-24 bg-slate-900 rounded-xl mb-4 flex items-end justify-center pb-3 overflow-hidden relative border border-slate-800">
+                        <span class="text-[#f5f5dc] font-lora italic text-sm tracking-widest relative z-10">Cinematic Look</span>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-slate-800 text-lg">Cinematic</h3>
+                        <div class="radio-indicator w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center transition-colors"><div class="inner-dot w-2.5 h-2.5 bg-indigo-600 rounded-full opacity-0 scale-50 transition-all"></div></div>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Serif font, slightly yellow tint, positioned lower on the screen.</p>
+                </button>
+
+                <!-- Style 4: Reels / Shorts -->
+                <button onclick="selectStyle('reels')" id="card-reels" class="style-card group relative text-left bg-white/60 backdrop-blur-xl border-2 border-transparent hover:border-indigo-300 rounded-[24px] p-5 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="w-full h-24 bg-slate-900 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative border border-slate-800">
+                        <span class="text-[#FFD700] font-poppins font-bold text-lg tracking-tight relative z-10 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">VIRAL SHORTS</span>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-slate-800 text-lg">Reels & Shorts</h3>
+                        <div class="radio-indicator w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center transition-colors"><div class="inner-dot w-2.5 h-2.5 bg-indigo-600 rounded-full opacity-0 scale-50 transition-all"></div></div>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Punchy, bright yellow, raised higher. Perfect for TikTok/Reels format.</p>
+                </button>
+
             </div>
 
-            <!-- Primary CTA -->
-            <button onclick="processSRT()" class="group relative w-full flex items-center justify-center gap-2 bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl py-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_8px_16px_-4px_rgba(79,70,229,0.4)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.1),0_12px_24px_-4px_rgba(79,70,229,0.5)] active:scale-[0.98] transition-all duration-200 overflow-hidden border border-indigo-700/50">
-                <!-- Inner top highlight for 3D effect -->
-                <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-100 group-hover:text-white group-hover:animate-pulse"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                <span class="tracking-wide">Generate XML</span>
-            </button>
-
-            <!-- Output Section (Hidden by default) -->
-            <div id="outputSection" class="hidden pt-6 mt-2 border-t border-slate-100 animate-[fadeIn_0.4s_ease-out]">
-                <button id="downloadBtn" onclick="downloadXML()" class="w-full relative flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-base rounded-xl py-4 shadow-[0_4px_12px_-2px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-all duration-200 border border-emerald-600/50 overflow-hidden">
-                    <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
-                    <span>Download XML File</span>
+            <div class="flex justify-center mt-2">
+                <button id="btnContinue" onclick="goToStep2()" disabled class="group relative flex items-center justify-center gap-2 bg-slate-200 text-slate-400 font-semibold text-base rounded-xl py-4 px-10 transition-all duration-300 cursor-not-allowed">
+                    <span>Continue with style</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </button>
             </div>
-            
-        </main>
+        </div>
 
-        <!-- Minimal Footer -->
-        <footer class="flex items-center justify-between px-2 pt-2">
+        <!-- ========================================== -->
+        <!-- STEP 2: CONVERTER PAGE                     -->
+        <!-- ========================================== -->
+        <div id="step2" class="w-full max-w-[560px] mx-auto flex-col gap-4 view-hidden">
+            
+            <!-- Navigation Back Bar -->
+            <div class="flex justify-between items-center px-1 mb-2">
+                <button onclick="goToStep1()" class="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m15 18-6-6 6-6"/></svg>
+                    Back to Styles
+                </button>
+                <div class="bg-indigo-50 border border-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                    <span id="selectedStyleLabel">Minimal</span>
+                </div>
+            </div>
+
+            <!-- Main Converter Card -->
+            <main class="w-full bg-white/80 backdrop-blur-2xl border border-white rounded-[28px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent blur-sm"></div>
+
+                <div class="flex flex-col gap-5 mt-2">
+                    
+                    <!-- Upload Box -->
+                    <div id="dropZone" class="group relative w-full h-32 rounded-2xl border-[1.5px] border-dashed border-slate-300 bg-slate-50/50 hover:bg-indigo-50/50 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.1)] transition-all duration-300 cursor-pointer flex flex-col items-center justify-center overflow-hidden">
+                        <input type="file" id="fileInput" accept=".srt,.txt,text/*,*/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30" />
+                        
+                        <div class="w-10 h-10 mb-2 rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300 relative z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+                        </div>
+                        
+                        <div id="fileStatusContainer" class="flex flex-col items-center relative z-10">
+                            <h3 class="font-medium text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Click or drag SRT file</h3>
+                        </div>
+                        
+                        <!-- Success state badge -->
+                        <div id="fileStatus" class="absolute inset-0 bg-indigo-50/95 backdrop-blur-sm hidden flex-col items-center justify-center border-indigo-200 z-20">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/></svg>
+                            </div>
+                            <span id="fileNameDisplay" class="text-xs font-semibold text-indigo-700 max-w-[80%] truncate"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="h-px flex-1 bg-slate-200"></div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">or paste</span>
+                        <div class="h-px flex-1 bg-slate-200"></div>
+                    </div>
+
+                    <!-- Text Area -->
+                    <div class="relative group">
+                        <textarea 
+                            id="srtInput" 
+                            placeholder="00:00:00,000 --> 00:00:02,000&#10;Your subtitles here..." 
+                            class="w-full h-28 bg-slate-50/80 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all resize-y placeholder:text-slate-400 shadow-inner"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Primary CTA -->
+                <button onclick="processSRT()" class="group relative w-full flex items-center justify-center gap-2 bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl py-4 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_8px_16px_-4px_rgba(79,70,229,0.4)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.1),0_12px_24px_-4px_rgba(79,70,229,0.5)] active:scale-[0.98] transition-all duration-200 overflow-hidden border border-indigo-700/50 mt-2">
+                    <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-100 group-hover:text-white group-hover:animate-pulse"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span class="tracking-wide">Generate XML</span>
+                </button>
+
+                <!-- Output Section -->
+                <div id="outputSection" class="hidden pt-6 mt-2 border-t border-slate-100 animate-fade-in">
+                    <button id="downloadBtn" onclick="downloadXML()" class="w-full relative flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-base rounded-xl py-4 shadow-[0_4px_12px_-2px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-all duration-200 border border-emerald-600/50 overflow-hidden">
+                        <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+                        <span>Download XML File</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Global Footer -->
+        <footer class="flex items-center justify-between px-4 pt-2 w-full max-w-[560px] mx-auto">
             <p class="text-xs font-medium text-slate-400">Crafted by <a href="https://www.instagram.com/editbyujjwal" target="_blank" class="text-slate-500 hover:text-indigo-600 transition-colors">@editbyujjwal</a></p>
             <div class="flex items-center gap-4">
                 <a href="#" class="text-slate-400 hover:text-indigo-600 transition-colors transform hover:scale-110">
@@ -171,12 +268,48 @@
         </footer>
     </div>
 
-    <!-- Toast Container -->
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
+        // --- System Configuration for Styles ---
+        const STYLE_CONFIG = {
+            minimal: { 
+                name: "Minimal", 
+                size: "18.000000", 
+                font: "googlefonts?name=Inter&amp;weight=400", 
+                color: "#ff7f7f7f", // Gray
+                yPos: "640.000000"  // Center
+            },
+            bold: { 
+                name: "Bold Pro", 
+                size: "32.000000", 
+                font: "googlefonts?name=Inter&amp;weight=800", 
+                color: "#ffffffff", // White
+                yPos: "640.000000"  // Center
+            },
+            cinematic: { 
+                name: "Cinematic", 
+                size: "24.000000", 
+                font: "googlefonts?name=Lora&amp;weight=400", 
+                color: "#ffffeeee", // Off-white / light cream
+                yPos: "1000.000000" // Bottom aligned
+            },
+            reels: { 
+                name: "Reels & Shorts", 
+                size: "30.000000", 
+                font: "googlefonts?name=Poppins&amp;weight=700", 
+                color: "#ffffd700", // Gold / Yellow
+                yPos: "540.000000"  // Slightly above center
+            }
+        };
+
+        // --- State Management ---
+        let currentStyle = null;
+        let currentFileName = "Converted_Subtitles";
+        let generatedXML = ""; 
+
         // --- Custom Toast System ---
-        // Notification dikhane ke liye function
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -184,36 +317,82 @@
             const isError = type === 'error';
             const bgClass = isError ? 'bg-red-50 border-red-100 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800';
             
-            // Inline SVG icons for toast
             const errorSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-500"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
             const successSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
 
             toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg backdrop-blur-md toast-enter-active ${bgClass} pointer-events-auto`;
-            
-            toast.innerHTML = `
-                ${isError ? errorSvg : successSvg}
-                <span class="font-semibold text-xs tracking-wide">${message}</span>
-            `;
+            toast.innerHTML = `${isError ? errorSvg : successSvg} <span class="font-semibold text-xs tracking-wide">${message}</span>`;
             
             container.appendChild(toast);
-
-            // 3 second baad toast hide karna
             setTimeout(() => {
                 toast.classList.replace('toast-enter-active', 'toast-leave');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        // --- Core Application Logic ---
-        let currentFileName = "Converted_Subtitles";
-        let generatedXML = ""; // Data in-memory store karne ke liye
+        // --- Step Navigation & Style Selection ---
+        function selectStyle(styleId) {
+            currentStyle = styleId;
+            
+            // Reset all cards styling
+            document.querySelectorAll('.style-card').forEach(card => {
+                card.classList.remove('border-indigo-500', 'bg-white/90', 'ring-4', 'ring-indigo-500/20');
+                card.classList.add('border-transparent', 'bg-white/60');
+                card.querySelector('.radio-indicator').classList.remove('border-indigo-500');
+                card.querySelector('.radio-indicator').classList.add('border-slate-300');
+                card.querySelector('.inner-dot').classList.remove('opacity-100', 'scale-100');
+                card.querySelector('.inner-dot').classList.add('opacity-0', 'scale-50');
+            });
+
+            // Apply selected styling to the clicked card
+            const selectedCard = document.getElementById(`card-${styleId}`);
+            selectedCard.classList.remove('border-transparent', 'bg-white/60');
+            selectedCard.classList.add('border-indigo-500', 'bg-white/90', 'ring-4', 'ring-indigo-500/20');
+            selectedCard.querySelector('.radio-indicator').classList.remove('border-slate-300');
+            selectedCard.querySelector('.radio-indicator').classList.add('border-indigo-500');
+            selectedCard.querySelector('.inner-dot').classList.remove('opacity-0', 'scale-50');
+            selectedCard.querySelector('.inner-dot').classList.add('opacity-100', 'scale-100');
+
+            // Enable Continue Button
+            const btn = document.getElementById('btnContinue');
+            btn.disabled = false;
+            btn.classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+            btn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'shadow-lg', 'hover:shadow-indigo-500/30', 'hover:-translate-y-0.5');
+        }
+
+        function goToStep2() {
+            if (!currentStyle) return;
+            
+            // Update Label in Step 2
+            document.getElementById('selectedStyleLabel').innerText = STYLE_CONFIG[currentStyle].name;
+            
+            // Transition
+            document.getElementById('step1').classList.remove('view-active');
+            document.getElementById('step1').classList.add('view-hidden');
+            
+            // Reset state of step 2
+            document.getElementById('outputSection').classList.add('hidden');
+            document.getElementById('outputSection').classList.remove('block');
+            
+            document.getElementById('step2').classList.remove('view-hidden');
+            document.getElementById('step2').classList.add('view-active');
+        }
+
+        function goToStep1() {
+            document.getElementById('step2').classList.remove('view-active');
+            document.getElementById('step2').classList.add('view-hidden');
+            
+            document.getElementById('step1').classList.remove('view-hidden');
+            document.getElementById('step1').classList.add('view-active');
+        }
+
+        // --- File Upload Handling ---
         const fileInput = document.getElementById('fileInput');
         const srtInput = document.getElementById('srtInput');
         const dropZone = document.getElementById('dropZone');
         const fileStatus = document.getElementById('fileStatus');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
 
-        // Drag & Drop event listeners
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -228,23 +407,20 @@
             });
         });
 
-        // Drop par file handle karna
         dropZone.addEventListener('drop', (e) => {
             const file = e.dataTransfer.files[0];
             if (file) handleFile(file);
         });
 
-        // Input button click par file handle karna
         fileInput.addEventListener('change', (e) => {
             if (e.target.files[0]) handleFile(e.target.files[0]);
         });
 
-        // File read karne ka logic
         function handleFile(file) {
             try {
+                fileInput.value = ''; // Reset input to allow re-uploading same file
                 currentFileName = file.name.replace(/\.[^/.]+$/, "");
                 
-                // UI mein file ka naam dikhana
                 fileNameDisplay.textContent = file.name;
                 fileStatus.classList.remove('hidden');
                 fileStatus.classList.add('flex');
@@ -252,7 +428,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     srtInput.value = e.target.result;
-                    showToast('File loaded successfully', 'success');
+                    processSRT(); // Auto-convert
                 };
                 reader.onerror = () => {
                     showToast('Failed to read file', 'error');
@@ -264,7 +440,7 @@
             }
         }
 
-        // Generate button press par SRT ko process karna
+        // --- Core Parsing & Conversion ---
         function processSRT() {
             try {
                 const rawText = srtInput.value.trim();
@@ -280,23 +456,19 @@
                     return;
                 }
 
-                const xmlString = generateAMXML(subtitles);
+                generatedXML = generateAMXML(subtitles);
                 
-                // XML ko memory mein save karna aur Download button dikhana
-                generatedXML = xmlString;
                 const outputSection = document.getElementById('outputSection');
-                
                 outputSection.classList.remove('hidden');
                 outputSection.classList.add('block');
 
-                showToast('XML Generated Successfully', 'success');
+                showToast('XML Generated based on Style', 'success');
             } catch (error) {
                 showToast('Something went wrong during conversion', 'error');
                 console.error(error);
             }
         }
 
-        // SRT text ko parse karne ka main function
         function parseSRTContent(text) {
             const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
             const blocks = normalizedText.split(/\n{2,}/);
@@ -323,6 +495,98 @@
                     const endMs = timeToMilliseconds(match[2]);
                     let content = match[3] ? match[3].trim() : '';
 
-                    // Time ke baad waali lines collect karna
                     for (let i = timeLineIndex + 1; i < lines.length; i++) {
-                        
+                        const lineText = lines[i].trim();
+                        if (lineText) {
+                            if (content) content += '\n';
+                            content += lineText;
+                        }
+                    }
+
+                    if (content) {
+                        subtitles.push({ startMs, endMs, content });
+                    }
+                }
+            });
+
+            return subtitles;
+        }
+
+        function timeToMilliseconds(timeString) {
+            const parts = timeString.split(/[,\.]/);
+            const timeParts = parts[0].split(':').map(Number);
+            const ms = Number(parts[1] || 0);
+            return (timeParts[0] * 3600000) + (timeParts[1] * 60000) + (timeParts[2] * 1000) + ms;
+        }
+
+        function generateAMXML(subtitles) {
+            const totalTime = subtitles[subtitles.length - 1].endMs;
+            const modifiedTime = Date.now();
+            let elementId = 102351839;
+
+            // Fetch formatting based on selected style
+            const style = STYLE_CONFIG[currentStyle] || STYLE_CONFIG.minimal;
+
+            let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n`;
+            xml += `<!-- Generated by Premium SRT Converter -->\n`;
+            xml += `<scene title="${currentFileName}_${style.name.replace(/\s+/g, '')}" width="720" height="1280" exportWidth="720" exportHeight="1280" precompose="dynamicResolution" bgcolor="#ffd8d8d8" totalTime="${totalTime}" fps="24" modifiedTime="${modifiedTime}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`;
+
+            xml += `  <shape id="102351835" label="Rectangle 1" startTime="0" endTime="${totalTime}" fillType="color" mediaFillMode="fill" s=".rect">\n`;
+            xml += `    <transform>\n`;
+            xml += `      <location value="360.000000,640.000000,0.000000" />\n`;
+            xml += `    </transform>\n`;
+            xml += `    <property name="size" type="vec2" value="372.551697,712.413818" />\n`;
+            xml += `  </shape>\n`;
+
+            subtitles.forEach(sub => {
+                const safeContent = sub.content
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+
+                xml += `  <text id="${elementId++}" startTime="${sub.startMs}" endTime="${sub.endMs}" fillType="color" mediaFillMode="fill" size="${style.size}" font="${style.font}" wrapWidth="512" align="center">\n`;
+                xml += `    <transform>\n`;
+                // Applied the Dynamic Y Position based on style selected
+                xml += `      <location value="360.000000,${style.yPos},0.000000" />\n`;
+                xml += `    </transform>\n`;
+                // Applied the Dynamic Color based on style selected
+                xml += `    <fillColor value="${style.color}" />\n`;
+                xml += `    <content>${safeContent}</content>\n`;
+                xml += `  </text>\n`;
+            });
+
+            xml += `</scene>`;
+            return xml;
+        }
+
+        // --- Trigger Download ---
+        function downloadXML() {
+            if (!generatedXML) {
+                showToast('No XML data generated yet', 'error');
+                return;
+            }
+
+            const styleSuffix = STYLE_CONFIG[currentStyle] ? `_${STYLE_CONFIG[currentStyle].name.replace(/\s+/g, '')}` : '';
+            const finalFileName = `${currentFileName}${styleSuffix}.xml`;
+
+            const blob = new Blob([generatedXML], { type: "text/xml" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = finalFileName;
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Download started', 'success');
+        }
+    </script>
+</body>
+</html>
+
+
