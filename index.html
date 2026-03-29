@@ -38,6 +38,7 @@
             padding: 0;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent; /* Fixes the blue blink on click/tap */
         }
 
         body {
@@ -127,6 +128,8 @@
             flex-direction: column;
             align-items: center;
             gap: 12px;
+            outline: none;
+            user-select: none;
         }
 
         .upload-zone:hover, .upload-zone.dragover {
@@ -154,6 +157,19 @@
         .upload-subtext {
             font-size: 13px;
             color: var(--text-muted);
+        }
+
+        /* Accessible hidden input to guarantee cross-browser click functionality */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0,0,0,0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
         }
 
         /* Divider */
@@ -272,6 +288,7 @@
             justify-content: center;
             align-items: center;
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+            outline: none;
         }
 
         .btn:hover {
@@ -329,7 +346,8 @@
                 <p>Convert subtitles into motion-ready XML</p>
             </header>
 
-            <div class="upload-zone" id="dropzone">
+            <!-- Changed to a label to trigger input natively without JavaScript hacks -->
+            <label class="upload-zone" id="dropzone" for="fileInput">
                 <svg class="upload-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
@@ -339,10 +357,9 @@
                     <span class="upload-text" id="uploadText">Drop your .srt file here</span>
                     <span class="upload-subtext" id="uploadSubtext">or click to browse</span>
                 </div>
-            </div>
+            </label>
             
-            <!-- FIXED: Hidden input moved outside the clickable box to prevent browser bubbling issues -->
-            <input type="file" id="fileInput" accept=".srt" style="display: none;">
+            <input type="file" id="fileInput" accept=".srt" class="visually-hidden">
 
             <div class="divider">
                 <span>OR</span>
@@ -424,10 +441,6 @@
         };
 
         // File Drag & Drop Handlers
-        dropzone.addEventListener('click', () => {
-            fileInput.click();
-        });
-
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropzone.addEventListener(eventName, preventDefaults, false);
         });
@@ -567,40 +580,4 @@
                     }
 
                     const finalXml = `<?xml version='1.0' encoding='UTF-8' ?>
-<scene title="${fileName} @editbyujjwal" width="720" height="1280" exportWidth="1280" exportHeight="720" precompose="dynamicResolution" bgcolor="#ff000000" totalTime="${totalTime}" fps="24" modifiedTime="${Date.now()}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">
-${xmlElements.join('\n')}
-</scene>`;
-
-                    downloadFile(finalXml, `${fileName}.xml`);
-                    showStatus('Download started', 'ready');
-
-                    // Reset to idle gracefully
-                    setTimeout(() => {
-                        if (statusText.textContent === 'Download started') {
-                            showStatus('', 'idle');
-                        }
-                    }, 4000);
-
-                } catch (err) {
-                    showStatus('Conversion error', 'ready');
-                }
-            }, 600);
-        });
-
-        // Trigger file download
-        function downloadFile(content, filename) {
-            const blob = new Blob([content], { type: 'text/xml' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-    </script>
-</body>
-</html>
-
-
+<scene title="${fileName} @editbyujjwal" width="720" height="1280" exportWidth="1280" exportHeight="720" precompose="dynamicResolution" bgcolor="#ff000000" totalTime="${totalTime}" fps="24" modifiedTime="${Date.now()}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.10025
