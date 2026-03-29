@@ -54,6 +54,7 @@
             position: relative;
         }
 
+        /* Subtle Noise Texture Overlay */
         body::before {
             content: "";
             position: absolute;
@@ -71,6 +72,7 @@
             z-index: 1;
         }
 
+        /* Main Card Container */
         .card {
             background-color: var(--bg-card);
             border-radius: 24px;
@@ -81,6 +83,7 @@
             border: 1px solid rgba(0, 0, 0, 0.04);
         }
 
+        /* Editorial Header Typography */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -95,14 +98,11 @@
             letter-spacing: -0.02em;
         }
 
-        .header h1 .serif-regular {
-            font-weight: 500;
-        }
-
-        .header h1 .serif-italic {
-            font-weight: 400;
-            font-style: italic;
-            color: var(--text-muted);
+        .header h1 .serif-regular { font-weight: 500; }
+        .header h1 .serif-italic { 
+            font-weight: 400; 
+            font-style: italic; 
+            color: var(--text-muted); 
         }
 
         .header p {
@@ -112,6 +112,7 @@
             letter-spacing: 0.01em;
         }
 
+        /* Upload Zone Interactive Box */
         .upload-zone {
             background-color: var(--bg-input);
             border: 1px dashed var(--border-dark);
@@ -124,11 +125,8 @@
             flex-direction: column;
             align-items: center;
             gap: 12px;
-            outline: none;
-            user-select: none;
             position: relative;
             overflow: hidden;
-            width: 100%;
         }
 
         .upload-zone:hover, .upload-zone.dragover {
@@ -139,12 +137,7 @@
 
         .upload-icon {
             color: var(--text-main);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             stroke-width: 1.5;
-        }
-
-        .upload-zone:hover .upload-icon {
-            transform: translateY(-2px);
         }
 
         .upload-text {
@@ -158,7 +151,7 @@
             color: var(--text-muted);
         }
 
-        /* Makes the file input fill the entire box and be invisible but physically tappable */
+        /* Invisible but functional file input */
         .file-input-hidden {
             position: absolute;
             inset: 0;
@@ -167,7 +160,6 @@
             opacity: 0;
             cursor: pointer;
             z-index: 10;
-            -webkit-tap-highlight-color: transparent; /* Ensures the input itself doesn't flash blue */
         }
 
         .divider {
@@ -188,9 +180,7 @@
             background-color: var(--border-light);
         }
 
-        .divider span {
-            padding: 0 16px;
-        }
+        .divider span { padding: 0 16px; }
 
         textarea {
             width: 100%;
@@ -205,10 +195,6 @@
             transition: var(--transition);
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
-        }
-
-        textarea::placeholder {
-            color: var(--text-light);
         }
 
         textarea:focus {
@@ -231,45 +217,27 @@
             height: 5px;
             border-radius: 50%;
             background-color: var(--border-light);
-            transition: var(--transition);
             opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .status-dot.visible {
-            opacity: 1;
-        }
-
-        .status-dot.processing {
-            background-color: var(--text-main);
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-
-        .status-dot.ready {
-            background-color: var(--text-muted);
-        }
-
-        .status-dot.error {
-            background-color: #ef4444;
-        }
-
-        .status-text {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 400;
-            opacity: 0;
-            transform: translateY(2px);
-            transition: all 0.3s ease;
-        }
-
-        .status-text.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .status-dot.visible { opacity: 1; }
+        .status-dot.processing { background-color: var(--text-main); animation: pulse 1.5s infinite; }
+        .status-dot.error { background-color: #ef4444; }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.8); }
         }
+
+        .status-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-text.visible { opacity: 1; }
 
         .btn {
             width: 100%;
@@ -280,28 +248,13 @@
             border-radius: 9999px;
             font-size: 15px;
             font-weight: 500;
-            letter-spacing: 0.01em;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
-            outline: none;
+            transition: transform 0.3s var(--transition), background-color 0.3s ease;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            background-color: #1a1a1a;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn.loading {
-            pointer-events: none;
-            background-color: var(--text-muted);
-        }
+        .btn:hover { transform: translateY(-2px); background-color: #1a1a1a; }
+        .btn:active { transform: translateY(1px); }
+        .btn.loading { pointer-events: none; opacity: 0.6; }
 
         .footer {
             margin-top: 32px;
@@ -310,24 +263,8 @@
             color: var(--text-light);
         }
 
-        .footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: var(--transition);
-            padding-bottom: 2px;
-            border-bottom: 1px solid transparent;
-        }
-
-        .footer a:hover {
-            color: var(--text-main);
-            border-bottom-color: var(--text-main);
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                padding: 40px 24px;
-            }
-        }
+        .footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid transparent; transition: var(--transition); }
+        .footer a:hover { color: var(--text-main); border-bottom-color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -342,37 +279,30 @@
                 <p>Convert subtitles into motion-ready XML</p>
             </header>
 
-            <!-- Changed from <label> to <div> to stop the double-click/closing bug on mobile -->
             <div class="upload-zone" id="dropzone">
-                <!-- Completely removed the 'accept' attribute. This forces your phone to let you select ANY file without graying it out! -->
-                <input type="file" id="fileInput" class="file-input-hidden">
-                
-                <!-- SVG pointer-events none prevents misclicks on the icon -->
-                <svg class="upload-icon" style="pointer-events: none;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <input type="file" id="fileInput" class="file-input-hidden" accept=".srt">
+                <svg class="upload-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
-                <div style="display: flex; flex-direction: column; gap: 4px; pointer-events: none;">
+                <div style="pointer-events: none;">
                     <span class="upload-text" id="uploadText">Drop your .srt file here</span>
-                    <span class="upload-subtext" id="uploadSubtext">or tap to browse</span>
+                    <br> 
+                    <span class="upload-subtext">or tap to browse</span>
                 </div>
             </div>
 
-            <div class="divider">
-                <span>OR</span>
-            </div>
+            <div class="divider"><span>OR</span></div>
 
             <textarea id="srtInput" placeholder="Paste your SRT here..." spellcheck="false"></textarea>
 
             <div class="status-container">
                 <div class="status-dot" id="statusDot"></div>
-                <span class="status-text" id="statusText"></span>
+                <span class="status-text" id="statusText">No input detected</span>
             </div>
 
-            <button class="btn" id="convertBtn">
-                <span id="btnText">Convert & Download</span>
-            </button>
+            <button class="btn" id="convertBtn">Convert & Download</button>
         </div>
 
         <div class="footer">
@@ -385,186 +315,154 @@
         const fileInput = document.getElementById('fileInput');
         const srtInput = document.getElementById('srtInput');
         const convertBtn = document.getElementById('convertBtn');
-        const btnText = document.getElementById('btnText');
         const statusText = document.getElementById('statusText');
         const statusDot = document.getElementById('statusDot');
-        const uploadText = document.getElementById('uploadText');
-        const uploadSubtext = document.getElementById('uploadSubtext');
+        const uploadTextLabel = document.getElementById('uploadText');
 
-        let fileName = 'Caption';
+        let isProcessing = false;
+        let fileName = "Caption";
+        let statusTimeout = null;
 
-        // Extremely robust time conversion (handles missing ms, different lengths)
-        const timeToMs = (timeStr) => {
-            if (!timeStr) return 0;
-            const parts = timeStr.replace(',', '.').split('.');
-            const timePart = parts[0];
-            let msPart = parts[1] || '000';
-            
-            // Normalize MS to 3 digits
-            if (msPart.length === 1) msPart += '00';
-            else if (msPart.length === 2) msPart += '0';
-            else if (msPart.length > 3) msPart = msPart.substring(0, 3);
-            
-            const [hours, minutes, seconds] = timePart.split(':').map(Number);
-            return (hours * 3600 + minutes * 60 + seconds) * 1000 + Number(msPart);
-        };
-
-        const escapeXml = (unsafe) => {
-            return unsafe
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&apos;');
-        };
-        // UI Updates: Status Text handling
-        const showStatus = (message, state) => {
-            statusText.textContent = message;
+        // Clean UI helpers
+        function setStatus(msg, state = 'ready') {
+            if (statusTimeout) clearTimeout(statusTimeout);
+            statusText.textContent = msg;
             statusText.classList.add('visible');
             statusDot.classList.add('visible');
-            statusDot.className = 'status-dot visible';
+            statusDot.className = 'status-dot visible ' + state;
             
-            if (state === 'processing') {
-                statusDot.classList.add('processing');
-                btnText.textContent = 'Processing...';
-                convertBtn.classList.add('loading');
-            } else if (state === 'ready') {
-                statusDot.classList.add('ready');
-                btnText.textContent = 'Convert & Download';
-                convertBtn.classList.remove('loading');
-            } else if (state === 'error') {
-                statusDot.classList.add('error');
-                btnText.textContent = 'Convert & Download';
-                convertBtn.classList.remove('loading');
-            } else if (state === 'idle') {
-                statusText.classList.remove('visible');
-                statusDot.classList.remove('visible');
-                btnText.textContent = 'Convert & Download';
-                convertBtn.classList.remove('loading');
+            if (state === 'ready' || state === 'error') {
+                statusTimeout = setTimeout(() => {
+                    statusText.classList.remove('visible');
+                    statusDot.classList.remove('visible');
+                }, 4000);
             }
-        };
+        }
 
-        // File Selection handling
-        fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (!files || files.length === 0) return;
-            const file = files[0];
-            
-            // Safe fallback name extraction
-            fileName = file.name ? file.name.replace(/\.[^/.]+$/, "") : 'Caption';
-            if (!fileName) fileName = 'Caption';
-            
-            showStatus('Reading file...', 'processing');
+        // Standard escaping for XML security
+        function escapeXml(s) {
+            return s.replace(/[<>&'"]/g, c => ({
+                "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;"
+            }[c]));
+        }
 
-            const handleSuccess = (content) => {
-                srtInput.value = content; 
-                uploadText.textContent = file.name || 'File uploaded';
-                uploadSubtext.textContent = 'Content added to box below';
-                showStatus('File ready to convert', 'ready');
-                fileInput.value = ''; // Safely reset input ONLY after reading is 100% complete
-            };
+        // Advanced time string to MS converter
+        function toMs(t) {
+            const p = t.trim().replace(",", ".").split(".");
+            const [h, m, s] = p[0].split(":").map(Number);
+            let ms = (p[1] || "0").padEnd(3, "0").slice(0, 3);
+            return (h * 3600 + m * 60 + s) * 1000 + Number(ms);
+        }
 
-            const handleError = () => {
-                showStatus('Failed to read file', 'error');
-                fileInput.value = ''; // Safely reset input after error
-            };
-
-            try {
-                // Try modern API first
-                if (typeof file.text === 'function') {
-                    file.text().then(handleSuccess).catch(() => {
-                        // Fallback to classic FileReader if modern API fails
-                        const reader = new FileReader();
-                        reader.onload = (event) => handleSuccess(event.target.result);
-                        reader.onerror = handleError;
-                        reader.readAsText(file);
-                    });
-                } else {
-                    // Classic FileReader for older Android/iOS versions
-                    const reader = new FileReader();
-                    reader.onload = (event) => handleSuccess(event.target.result);
-                    reader.onerror = handleError;
-                    reader.readAsText(file);
-                }
-            } catch (err) {
-                handleError();
-            }
-        });
-
-        // Drag & Drop
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, e => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
-        });
-
-        dropzone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            fileInput.files = dt.files;
-            fileInput.dispatchEvent(new Event('change'));
-        });
-
-        // Textarea Handler
-        srtInput.addEventListener('input', () => {
-            if (srtInput.value.trim() !== '') {
-                uploadText.textContent = 'Drop your .srt file here';
-                uploadSubtext.textContent = 'or tap to browse';
-                fileName = 'Caption';
-                showStatus('Text ready', 'ready');
-            } else {
-                showStatus('', 'idle');
-            }
-        });
-
-        // Convert Logic
-        convertBtn.addEventListener('click', () => {
-            const inputToProcess = srtInput.value.trim();
-
-            if (!inputToProcess) {
-                showStatus('No data provided to convert', 'error');
+        // Logic to handle file reading
+        async function handleFile(file) {
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith(".srt")) {
+                setStatus("Only .srt files allowed", 'error');
                 return;
             }
-
+            fileName = file.name.replace(/\.[^/.]+$/, "");
+            uploadTextLabel.textContent = file.name;
+            setStatus("Reading file...", 'processing');
             try {
-                // REMOVED async setTimeout! Mobile browsers block auto-downloads 
-                // if they don't happen immediately inside a direct user click event.
-                const lines = inputToProcess.replace(/\r\n/g, '\n').split('\n');
-                let xmlElements = [];
-                let totalTime = 0;
-                let validCount = 0;
-                
-                let currentStartTime = 0;
-                let currentEndTime = 0;
-                let currentText = [];
-                let isCollecting = false;
+                const text = await file.text();
+                srtInput.value = text;
+                setStatus("File ready", 'ready');
+            } catch {
+                setStatus("Failed to read file", 'error');
+            }
+        }
 
-                // Extremely flexible regex to catch almost any SRT timestamp format
-                const timeRegex = /(\d{1,2}:\d{1,2}:\d{1,2}(?:[,\.]\d{1,3})?)\s*-->\s*(\d{1,2}:\d{1,2}:\d{1,2}(?:[,\.]\d{1,3})?)/;
+        // Events
+        fileInput.addEventListener("change", e => handleFile(e.target.files[0]));
+        
+        ['dragenter', 'dragover'].forEach(n => dropzone.addEventListener(n, e => {
+            e.preventDefault(); dropzone.classList.add('dragover');
+        }));
+        ['dragleave', 'drop'].forEach(n => dropzone.addEventListener(n, e => {
+            e.preventDefault(); dropzone.classList.remove('dragover');
+        }));
+        dropzone.addEventListener("drop", e => handleFile(e.dataTransfer.files[0]));
 
-                const flushBlock = () => {
-                    if (isCollecting && currentText.length > 0) {
-                        const text = currentText.join('\n').trim();
-                        if (text) {
-                            totalTime = Math.max(totalTime, currentEndTime);
-                            validCount++;
-                            const escapedText = escapeXml(text);
-                            const xmlNode = `  <text id="${100000 + validCount}" startTime="${currentStartTime}" endTime="${currentEndTime}" fillType="color" mediaFillMode="fill" size="18.000000" font="googlefonts?name=Roboto&amp;weight=400" wrapWidth="512" align="center">\n    <transform>\n      <location value="360.000000,640.000000,0.000000" />\n    </transform>\n    <fillColor value="#ff7f7f7f" />\n    <content>${escapedText}</content>\n  </text>`;
-                            xmlElements.push(xmlNode);
+        srtInput.addEventListener('input', () => {
+            if (srtInput.value.trim()) setStatus("Text detected", "ready");
+        });
+
+        // Conversion Logic
+        convertBtn.addEventListener("click", () => {
+            if (isProcessing) return;
+            const input = srtInput.value.trim();
+            if (!input) { setStatus("No input detected", "error"); return; }
+
+            isProcessing = true;
+            convertBtn.classList.add('loading');
+            setStatus("Converting...", "processing");
+
+            setTimeout(() => {
+                try {
+                    // Split into subtitle blocks
+                    const blocks = input.split(/\n\s*\n/);
+                    let xmlItems = [];
+                    let maxTime = 0;
+
+                    blocks.forEach((block, idx) => {
+                        const lines = block.split("\n").map(l => l.trim()).filter(l => l !== "");
+                        // Find the line containing the timestamp arrow
+                        const timeLineIndex = lines.findIndex(l => l.includes("-->"));
+                        if (timeLineIndex === -1) return;
+
+                        const timeLine = lines[timeLineIndex];
+                        const timestamps = timeLine.match(/(\d+:\d+:\d+[,\.]\d+)\s*-->\s*(\d+:\d+:\d+[,\.]\d+)/);
+                        
+                        if (timestamps) {
+                            const start = toMs(timestamps[1]);
+                            const end = toMs(timestamps[2]);
+                            // Subtitle content is everything after the timestamp line
+                            const content = lines.slice(timeLineIndex + 1).join("\n");
+
+                            maxTime = Math.max(maxTime, end);
+                            const id = 100001 + idx;
+
+                            xmlItems.push(`  <text id="${id}" startTime="${start}" endTime="${end}" fillType="color" mediaFillMode="fill" size="14.000000" font="googlefonts?name=Roboto&amp;weight=700" wrapWidth="512" align="center">
+    <transform>
+      <location value="360.000000,640.000000,0.000000" />
+    </transform>
+    <shadow direction="outside" enabled="false">
+      <opacity value="0.200000" />
+    </shadow>
+    <content>${escapeXml(content)}</content>
+  </text>`);
                         }
-                    }
-                };
+                    });
 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    const timeMatch = line.match(timeRegex);
-                    
-                    if (timeMatch) {
+                    if (xmlItems.length === 0) throw new Error("Format error");
+
+                    const finalXml = `<?xml version='1.0' encoding='UTF-8' ?>
+<scene title="${escapeXml(fileName)} @editbyujjwal" width="720" height="1280" exportWidth="1280" exportHeight="720" precompose="dynamicResolution" bgcolor="#ff000000" totalTime="${maxTime}" fps="24" modifiedTime="${Date.now()}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">
+${xmlItems.join("\n")}
+</scene>`;
+
+                    // Download Execution
+                    const blob = new Blob([finalXml], { type: "text/xml" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${fileName}.xml`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    setStatus("Download started", "ready");
+                } catch (e) {
+                    setStatus("Invalid SRT format", "error");
+                } finally {
+                    isProcessing = false;
+                    convertBtn.classList.remove('loading');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+
