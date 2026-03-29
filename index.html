@@ -339,8 +339,10 @@
                     <span class="upload-text" id="uploadText">Drop your .srt file here</span>
                     <span class="upload-subtext" id="uploadSubtext">or click to browse</span>
                 </div>
-                <input type="file" id="fileInput" accept=".srt" style="display: none;">
             </div>
+            
+            <!-- FIXED: Hidden input moved outside the clickable box to prevent browser bubbling issues -->
+            <input type="file" id="fileInput" accept=".srt" style="display: none;">
 
             <div class="divider">
                 <span>OR</span>
@@ -422,7 +424,9 @@
         };
 
         // File Drag & Drop Handlers
-        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('click', () => {
+            fileInput.click();
+        });
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropzone.addEventListener(eventName, preventDefaults, false);
@@ -469,6 +473,7 @@
                 uploadText.textContent = file.name;
                 uploadSubtext.textContent = 'File attached';
                 showStatus('File ready', 'ready');
+                fileInput.value = ''; // Reset input to allow re-uploading the same file
             };
             
             reader.onerror = () => showStatus('Failed to read file', 'ready');
@@ -479,12 +484,11 @@
         srtInput.addEventListener('input', () => {
             if (srtInput.value.trim() !== '') {
                 fileContent = srtInput.value;
-                fileInput.value = ''; 
                 uploadText.textContent = 'Drop your .srt file here';
                 uploadSubtext.textContent = 'or click to browse';
                 fileName = 'Caption';
                 showStatus('Text ready', 'ready');
-            } else if (fileInput.files.length === 0) {
+            } else {
                 fileContent = '';
                 showStatus('', 'idle');
             }
@@ -584,4 +588,19 @@ ${xmlElements.join('\n')}
         });
 
         // Trigger file download
-        function downloadFile(content, 
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
+
+
