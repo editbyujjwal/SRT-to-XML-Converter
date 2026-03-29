@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium SRT Converter</title>
+    <title>SRT to XML Converter</title>
     
     <!-- Google Fonts: Exclusively Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,7 @@
     </script>
 
     <style>
-        /* Custom sleek scrollbar */
+        /* Custom sleek scrollbar design */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -68,7 +68,7 @@
     <!-- Main Application Wrapper (Tight 560px width for focus) -->
     <div class="w-full max-w-[560px] z-10 flex flex-col gap-6">
         
-        <!-- Header (Outside the card, deeply integrated) -->
+        <!-- Header -->
         <header class="flex justify-between items-center px-2">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center">
@@ -146,32 +146,12 @@
                 <span class="tracking-wide">Generate XML</span>
             </button>
 
-            <!-- Output Section (Hidden) -->
-            <div id="outputSection" class="hidden flex-col gap-3 pt-6 mt-2 border-t border-slate-100 animate-[fadeIn_0.4s_ease-out]">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-slow"></div>
-                        Output Ready
-                    </h3>
-                    <div class="flex gap-2">
-                        <button onclick="copyToClipboard()" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger" title="Copy Code">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                        </button>
-                        <button onclick="downloadXML()" class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip-trigger" title="Download .xml">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <textarea 
-                    id="xmlOutput" 
-                    readonly 
-                    class="w-full h-32 bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-[11px] text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-y shadow-inner custom-scrollbar"
-                ></textarea>
-                
-                <button id="downloadBtn" onclick="downloadXML()" class="w-full mt-2 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl py-3 shadow-[0_4px_12px_-2px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-all duration-200 border border-emerald-600/50">
-                    <div class="absolute top-0 inset-x-0 h-px bg-white/20 rounded-t-xl"></div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
-                    <span>Download File</span>
+            <!-- Output Section (Hidden by default) -->
+            <div id="outputSection" class="hidden pt-6 mt-2 border-t border-slate-100 animate-[fadeIn_0.4s_ease-out]">
+                <button id="downloadBtn" onclick="downloadXML()" class="w-full relative flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-base rounded-xl py-4 shadow-[0_4px_12px_-2px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-all duration-200 border border-emerald-600/50 overflow-hidden">
+                    <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+                    <span>Download XML File</span>
                 </button>
             </div>
             
@@ -195,7 +175,8 @@
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-        // --- Toast System (Redesigned for top-right sleekness) ---
+        // --- Custom Toast System ---
+        // Notification dikhane ke liye function
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -203,6 +184,7 @@
             const isError = type === 'error';
             const bgClass = isError ? 'bg-red-50 border-red-100 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800';
             
+            // Inline SVG icons for toast
             const errorSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-500"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
             const successSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
 
@@ -215,6 +197,7 @@
             
             container.appendChild(toast);
 
+            // 3 second baad toast hide karna
             setTimeout(() => {
                 toast.classList.replace('toast-enter-active', 'toast-leave');
                 setTimeout(() => toast.remove(), 300);
@@ -223,13 +206,14 @@
 
         // --- Core Application Logic ---
         let currentFileName = "Converted_Subtitles";
+        let generatedXML = ""; // Data in-memory store karne ke liye
         const fileInput = document.getElementById('fileInput');
         const srtInput = document.getElementById('srtInput');
         const dropZone = document.getElementById('dropZone');
         const fileStatus = document.getElementById('fileStatus');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
 
-        // Drag & Drop UX
+        // Drag & Drop event listeners
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -244,64 +228,101 @@
             });
         });
 
+        // Drop par file handle karna
         dropZone.addEventListener('drop', (e) => {
             const file = e.dataTransfer.files[0];
             if (file) handleFile(file);
         });
 
+        // Input button click par file handle karna
         fileInput.addEventListener('change', (e) => {
             if (e.target.files[0]) handleFile(e.target.files[0]);
         });
 
+        // File read karne ka logic
         function handleFile(file) {
-            currentFileName = file.name.replace(/\.[^/.]+$/, "");
-            
-            // Show attached state
-            fileNameDisplay.textContent = file.name;
-            fileStatus.classList.remove('hidden');
-            fileStatus.classList.add('flex');
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                srtInput.value = e.target.result;
-                showToast('File loaded successfully', 'success');
-            };
-            reader.readAsText(file);
+            try {
+                currentFileName = file.name.replace(/\.[^/.]+$/, "");
+                
+                // UI mein file ka naam dikhana
+                fileNameDisplay.textContent = file.name;
+                fileStatus.classList.remove('hidden');
+                fileStatus.classList.add('flex');
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    srtInput.value = e.target.result;
+                    showToast('File loaded successfully', 'success');
+                };
+                reader.onerror = () => {
+                    showToast('Failed to read file', 'error');
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                showToast('Error uploading file', 'error');
+                console.error(error);
+            }
         }
 
-        // Parsing logic
+        // Generate button press par SRT ko process karna
         function processSRT() {
-            const rawText = srtInput.value.trim();
-            if (!rawText) {
-                showToast('Please paste text or upload a file');
-                return;
+            try {
+                const rawText = srtInput.value.trim();
+                if (!rawText) {
+                    showToast('Please paste text or upload a file', 'error');
+                    return;
+                }
+
+                const subtitles = parseSRTContent(rawText);
+                
+                if (subtitles.length === 0) {
+                    showToast('No valid timestamps found', 'error');
+                    return;
+                }
+
+                const xmlString = generateAMXML(subtitles);
+                
+                // XML ko memory mein save karna aur Download button dikhana
+                generatedXML = xmlString;
+                const outputSection = document.getElementById('outputSection');
+                
+                outputSection.classList.remove('hidden');
+                outputSection.classList.add('block');
+
+                showToast('XML Generated Successfully', 'success');
+            } catch (error) {
+                showToast('Something went wrong during conversion', 'error');
+                console.error(error);
             }
-
-            const subtitles = parseSRTContent(rawText);
-            
-            if (subtitles.length === 0) {
-                showToast('No valid timestamps found');
-                return;
-            }
-
-            const xmlString = generateAMXML(subtitles);
-            
-            // UI Updates
-            const outputSection = document.getElementById('outputSection');
-            const xmlOutput = document.getElementById('xmlOutput');
-
-            xmlOutput.value = xmlString;
-            
-            outputSection.classList.remove('hidden');
-            outputSection.classList.add('flex');
-
-            showToast('XML Generated Successfully', 'success');
         }
 
+        // SRT text ko parse karne ka main function
         function parseSRTContent(text) {
             const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
             const blocks = normalizedText.split(/\n{2,}/);
             const subtitles = [];
 
             blocks.forEach(block => {
- 
+                const lines = block.trim().split('\n');
+                if (lines.length < 2) return;
+
+                let timeLineIndex = -1;
+                let match = null;
+                const timeRegex = /^(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*(.*)$/;
+
+                for (let i = 0; i < lines.length; i++) {
+                    match = lines[i].match(timeRegex);
+                    if (match) {
+                        timeLineIndex = i;
+                        break;
+                    }
+                }
+
+                if (timeLineIndex !== -1 && match) {
+                    const startMs = timeToMilliseconds(match[1]);
+                    const endMs = timeToMilliseconds(match[2]);
+                    let content = match[3] ? match[3].trim() : '';
+
+                    // Time ke baad waali lines collect karna
+                    for (let i = timeLineIndex + 1; i < lines.length; i++) {
+                        
