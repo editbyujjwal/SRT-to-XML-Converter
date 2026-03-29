@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRT to Alight Motion XML Converter</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --container-bg: #ffffff;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--container-bg);
+            max-width: 800px;
+            width: 100%;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #eff6ff;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            background: #dbeafe;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-area label {
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1rem 0;
+            color: var(--text-light);
+            position: relative;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            resize: vertical;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-convert {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-convert:hover { background-color: var(--primary-hover); }
+
+        .btn-download {
+            background-color: var(--success);
+            color: white;
+            display: none;
+        }
+
+        .btn-download:hover { background-color: #059669; }
+
+        .output-section {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .output-section h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SRT to Alight Motion XML</h1>
+    <p class="subtitle">Convert standard or inline SRT files instantly in your browser.</p>
+
+    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept=".srt,.txt" />
+        <label>Click to Upload an SRT file</label>
+        <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Or drag and drop it here</p>
+    </div>
+
+    <div class="divider">OR PASTE TEXT</div>
+
+    <textarea id="srtInput" placeholder="Paste your SRT content here..."></textarea>
+
+    <div class="btn-group">
+        <button class="btn-convert" onclick="processSRT()">Convert to XML</button>
+        <button class="btn-download" id="downloadBtn" onclick="downloadXML()">Download XML</button>
+    </div>
+
+    <div class="output-section" id="outputSection">
+        <h3>Preview</h3>
+        <textarea id="xmlOutput" readonly style="background: #f9fafb;"></textarea>
+    </div>
+</div>
+
+<script>
+    let currentFileName = "Converted_Subtitles";
+
+    // --- File Upload & Drag-and-Drop Handlers ---
+    const fileInput = document.getElementById('fileInput');
+    const srtInput = document.getElementById('srtInput');
+
+    fileInput.addEventListener('change', handleFileUpload);
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        currentFileName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            srtInput.value = e.target.result;
+            processSRT(); // Auto-convert on upload
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Core Parsing Logic ---
+    function processSRT() {
+        const rawText = document.getElementById('srtInput').value.trim();
+        if (!rawText) {
+            alert("Please upload a file or paste SRT content first.");
+            return;
+        }
+
+        const subtitles = parseSRTContent(rawText);
+        
+        if (subtitles.length === 0) {
+            alert("No valid subtitles found. Please check your SRT format.");
+            return;
+        }
+
+        const xmlString = generateAMXML(subtitles);
+        
+        // Update UI
+        document.getElementById('xmlOutput').value = xmlString;
+        document.getElementById('outputSection').style.display = 'block';
+        document.getElementById('downloadBtn').style.display = 'block';
+    }
+
+    function parseSRTContent(text) {
+        // Normalize line endings to standard '\n'
+        const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        
+        // Split text into subtitle blocks based on empty lines
+        const blocks = normalizedText.split(/\n{2,}/);
+        const subtitles = [];
+
+        blocks.forEach(block => {
+            const lines = block.trim().split('\n');
+            if (lines.length < 2) return;
+
+            let timeLineIndex = -1;
+            let match = null;
+
+            // Regex for SRT Timestamp (handles both inline text and next-line text)
+            // Example: "00:00:00,400 --> 00:00:00,640 Optional Inline Text"
+            const timeRegex = /^(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*(.*)$/;
+
+            // Find the line containing the '-->' delimiter
+            for (let i = 0; i < lines.length; i++) {
+                match = lines[i].match(timeRegex);
+                if (match) {
+                    timeLineIndex = i;
+                    break;
+                }
+            }
+
+            // If valid timestamp found, process the block
+            if (timeLineIndex !== -1 && match) {
+                const startMs = timeToMilliseconds(match[1]);
+                const endMs = timeToMilliseconds(match[2]);
+                
+                // match[3] captures text that might exist on the SAME line as the timestamp
+                let content = match[3] ? match[3].trim() : '';
+
+                // Append any lines that come after the timestamp line
+                for (let i = timeLineIndex + 1; i < lines.length; i++) {
+                    const lineText = lines[i].trim();
+                    if (lineText) {
+                        if (content) content += '\n'; // Preserve multiline formatting
+                        content += lineText;
+                    }
+                }
+
+                if (content) {
+                    subtitles.push({ startMs, endMs, content });
+                }
+            }
+        });
+
+        return subtitles;
+    }
+
+    function timeToMilliseconds(timeString) {
+        // Handle both standard SRT comma (,) and alternative period (.)
+        const parts = timeString.split(/[,\.]/);
+        const timeParts = parts[0].split(':').map(Number);
+        const ms = Number(parts[1] || 0);
+
+        const hours = timeParts[0] || 0;
+        const minutes = timeParts[1] || 0;
+        const seconds = timeParts[2] || 0;
+
+        return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + ms;
+    }
+
+    // --- XML Generation Logic ---
+    function generateAMXML(subtitles) {
+        const totalTime = subtitles[subtitles.length - 1].endMs;
+        const modifiedTime = Date.now();
+        
+        // Start ID arbitrary but sequential to match Alight Motion logic
+        let elementId = 102351839;
+
+        let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n`;
+        xml += `\n`;
+        
+        // Root Scene Setup
+        xml += `<scene title="${currentFileName}" width="720" height="1280" exportWidth="720" exportHeight="1280" precompose="dynamicResolution" bgcolor="#ffd8d8d8" totalTime="${totalTime}" fps="24" modifiedTime="${modifiedTime}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`;
+
+        // Base background shape (Rectangle 1 as requested)
+        xml += `  <shape id="102351835" label="Rectangle 1" startTime="0" endTime="${totalTime}" fillType="color" mediaFillMode="fill" s=".rect">\n`;
+        xml += `    <transform>\n`;
+        xml += `      <location value="360.000000,640.000000,0.000000" />\n`;
+        xml += `    </transform>\n`;
+        xml += `    <property name="size" type="vec2" value="372.551697,712.413818" />\n`;
+        xml += `  </shape>\n`;
+
+        // Iterating over each parsed subtitle
+        subtitles.forEach(sub => {
+            // Escape special XML characters in subtitle content to prevent crashing
+            const safeContent = sub.content
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+
+            xml += `  <text id="${elementId++}" startTime="${sub.startMs}" endTime="${sub.endMs}" fillType="color" mediaFillMode="fill" size="18.000000" font="googlefonts?name=Roboto&amp;weight=400" wrapWidth="512" align="center">\n`;
+            xml += `    <transform>\n`;
+            xml += `      <location value="360.000000,640.000000,0.000000" />\n`;
+            xml += `    </transform>\n`;
+            xml += `    <fillColor value="#ff7f7f7f" />\n`;
+            xml += `    <content>${safeContent}</content>\n`;
+            xml += `  </text>\n`;
+        });
+
+        xml += `</scene>`;
+        return xml;
+    }
+
+    // --- Download Handler ---
+    function downloadXML() {
+        const xmlData = document.getElementById('xmlOutput').value;
+        if (!xmlData) return;
+
+        const blob = new Blob([xmlData], { type: "text/xml" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${currentFileName}.xml`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
