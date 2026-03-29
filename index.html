@@ -3,361 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRT to Alight Motion XML Converter</title>
-    <style>
-        :root {
-            --bg-color: #f4f4f9;
-            --container-bg: #ffffff;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --border: #e5e7eb;
-            --success: #10b981;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
-            min-height: 100vh;
-        }
-
-        .container {
-            background: var(--container-bg);
-            max-width: 800px;
-            width: 100%;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-            color: var(--text-dark);
-        }
-
-        p.subtitle {
-            text-align: center;
-            color: var(--text-light);
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--primary);
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            background: #eff6ff;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 1.5rem;
-        }
-
-        .upload-area:hover {
-            background: #dbeafe;
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-area label {
-            cursor: pointer;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 1rem 0;
-            color: var(--text-light);
-            position: relative;
-        }
-
-        .divider::before, .divider::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            resize: vertical;
-            margin-bottom: 1rem;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        button {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-convert {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-convert:hover { background-color: var(--primary-hover); }
-
-        .btn-download {
-            background-color: var(--success);
-            color: white;
-            display: none;
-        }
-
-        .btn-download:hover { background-color: #059669; }
-
-        .output-section {
-            display: none;
-            margin-top: 1.5rem;
-        }
-
-        .output-section h3 {
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>SRT to Alight Motion XML</h1>
-    <p class="subtitle">Convert standard or inline SRT files instantly in your browser.</p>
-
-    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <input type="file" id="fileInput" accept=".srt,.txt" />
-        <label>Click to Upload an SRT file</label>
-        <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Or drag and drop it here</p>
-    </div>
-
-    <div class="divider">OR PASTE TEXT</div>
-
-    <textarea id="srtInput" placeholder="Paste your SRT content here..."></textarea>
-
-    <div class="btn-group">
-        <button class="btn-convert" onclick="processSRT()">Convert to XML</button>
-        <button class="btn-download" id="downloadBtn" onclick="downloadXML()">Download XML</button>
-    </div>
-
-    <div class="output-section" id="outputSection">
-        <h3>Preview</h3>
-        <textarea id="xmlOutput" readonly style="background: #f9fafb;"></textarea>
-    </div>
-</div>
-
-<script>
-    let currentFileName = "Converted_Subtitles";
-
-    // --- File Upload & Drag-and-Drop Handlers ---
-    const fileInput = document.getElementById('fileInput');
-    const srtInput = document.getElementById('srtInput');
-
-    fileInput.addEventListener('change', handleFileUpload);
-
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        currentFileName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            srtInput.value = e.target.result;
-            processSRT(); // Auto-convert on upload
-        };
-        reader.readAsText(file);
-    }
-
-    // --- Core Parsing Logic ---
-    function processSRT() {
-        const rawText = document.getElementById('srtInput').value.trim();
-        if (!rawText) {
-            alert("Please upload a file or paste SRT content first.");
-            return;
-        }
-
-        const subtitles = parseSRTContent(rawText);
-        
-        if (subtitles.length === 0) {
-            alert("No valid subtitles found. Please check your SRT format.");
-            return;
-        }
-
-        const xmlString = generateAMXML(subtitles);
-        
-        // Update UI
-        document.getElementById('xmlOutput').value = xmlString;
-        document.getElementById('outputSection').style.display = 'block';
-        document.getElementById('downloadBtn').style.display = 'block';
-    }
-
-    function parseSRTContent(text) {
-        // Normalize line endings to standard '\n'
-        const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        
-        // Split text into subtitle blocks based on empty lines
-        const blocks = normalizedText.split(/\n{2,}/);
-        const subtitles = [];
-
-        blocks.forEach(block => {
-            const lines = block.trim().split('\n');
-            if (lines.length < 2) return;
-
-            let timeLineIndex = -1;
-            let match = null;
-
-            // Regex for SRT Timestamp (handles both inline text and next-line text)
-            // Example: "00:00:00,400 --> 00:00:00,640 Optional Inline Text"
-            const timeRegex = /^(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*(.*)$/;
-
-            // Find the line containing the '-->' delimiter
-            for (let i = 0; i < lines.length; i++) {
-                match = lines[i].match(timeRegex);
-                if (match) {
-                    timeLineIndex = i;
-                    break;
+    <title>Premium SRT Converter</title>
+    
+    <!-- Google Fonts: Exclusively Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
                 }
             }
+        }
+    </script>
 
-            // If valid timestamp found, process the block
-            if (timeLineIndex !== -1 && match) {
-                const startMs = timeToMilliseconds(match[1]);
-                const endMs = timeToMilliseconds(match[2]);
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom sleek scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Background Noise Texture for Premium Feel */
+        .bg-noise {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        /* Smooth Toast Animations */
+        .toast-enter { transform: translateY(100%) scale(0.9); opacity: 0; }
+        .toast-enter-active { transform: translateY(0) scale(1); opacity: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-leave { transform: translateY(20px) scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen relative overflow-x-hidden flex flex-col items-center justify-center py-10 px-4 sm:px-6 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Ambient Background Gradients -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-noise">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[100px] mix-blend-multiply animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-300/20 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-purple-300/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Main Application Wrapper (Tight 560px width for focus) -->
+    <div class="w-full max-w-[560px] z-10 flex flex-col gap-6">
+        
+        <!-- Header (Outside the card, deeply integrated) -->
+        <header class="flex justify-between items-center px-2">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center">
+                    <i data-lucide="layers" class="text-indigo-600 w-5 h-5"></i>
+                </div>
+                <h1 class="font-semibold text-lg tracking-tight text-slate-900">SRT Converter</h1>
+            </div>
+            
+            <a href="https://www.instagram.com/editbyujjwal" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white/60 hover:bg-white px-3 py-1.5 rounded-full border border-slate-200/60 hover:border-pink-300 hover:text-pink-600 hover:shadow-sm transition-all duration-300 backdrop-blur-sm">
+                <i data-lucide="instagram" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span>Instagram</span>
+            </a>
+        </header>
+
+        <!-- Main Card Container -->
+        <main class="w-full bg-white/80 backdrop-blur-2xl border border-white rounded-[28px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden">
+            
+            <!-- Inner subtle glow top -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent blur-sm"></div>
+
+            <!-- Title & Subtitle -->
+            <div class="text-center flex flex-col gap-1.5 mt-2">
+                <h2 class="font-bold text-2xl sm:text-3xl text-slate-900 tracking-tight">
+                    Convert to <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">XML</span>
+                </h2>
+                <p class="text-sm text-slate-500 font-medium">Upload your SRT file or paste the text directly.</p>
+            </div>
+
+            <!-- Interaction Zone -->
+            <div class="flex flex-col gap-5">
                 
-                // match[3] captures text that might exist on the SAME line as the timestamp
-                let content = match[3] ? match[3].trim() : '';
+                <!-- Upload Box -->
+                <div id="dropZone" class="group relative w-full h-32 rounded-2xl border-[1.5px] border-dashed border-slate-300 bg-slate-50/50 hover:bg-indigo-50/50 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.1)] transition-all duration-300 cursor-pointer flex flex-col items-center justify-center overflow-hidden">
+                    <input type="file" id="fileInput" accept=".srt,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    
+                    <div class="w-10 h-10 mb-2 rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+                        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                    </div>
+                    
+                    <div id="fileStatusContainer" class="flex flex-col items-center">
+                        <h3 class="font-medium text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Click or drag file here</h3>
+                    </div>
+                    
+                    <!-- Success state badge (Hidden initially) -->
+                    <div id="fileStatus" class="absolute inset-0 bg-indigo-50/95 backdrop-blur-sm hidden flex-col items-center justify-center border-indigo-200 z-20">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-1">
+                            <i data-lucide="file-check-2" class="w-4 h-4"></i>
+                        </div>
+                        <span id="fileNameDisplay" class="text-xs font-semibold text-indigo-700 max-w-[80%] truncate"></span>
+                    </div>
+                </div>
 
-                // Append any lines that come after the timestamp line
-                for (let i = timeLineIndex + 1; i < lines.length; i++) {
-                    const lineText = lines[i].trim();
-                    if (lineText) {
-                        if (content) content += '\n'; // Preserve multiline formatting
-                        content += lineText;
+                <!-- Divider -->
+                <div class="flex items-center gap-3">
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">or paste</span>
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                </div>
+
+                <!-- Text Area -->
+                <div class="relative group">
+                    <textarea 
+                        id="srtInput" 
+                        placeholder="00:00:00,000 --> 00:00:02,000&#10;Your subtitles here..." 
+                        class="w-full h-28 bg-slate-50/80 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all resize-y placeholder:text-slate-400 shadow-inner"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Primary CTA -->
+            <button onclick="processSRT()" class="group relative w-full flex items-center justify-center gap-2 bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl py-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_8px_16px_-4px_rgba(79,70,229,0.4)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.1),0_12px_24px_-4px_rgba(79,70,229,0.5)] active:scale-[0.98] transition-all duration-200 overflow-hidden border border-indigo-700/50">
+                <!-- Inner top highlight for 3D effect -->
+                <div class="absolute top-0 inset-x-0 h-px bg-white/20"></div>
+                <i data-lucide="zap" class="w-4 h-4 text-indigo-100 group-hover:text-white group-hover:animate-pulse"></i>
+                <span class="tracking-wide">Generate XML</span>
+            </button>
+
+            <!-- Output Section (Hidden) -->
+            <div id="outputSection" class="hidden flex-col gap-3 pt-6 mt-2 border-t border-slate-100 animate-[fadeIn_0.4s_ease-out]">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-slow"></div>
+                        Output Ready
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard()" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger" title="Copy Code">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="downloadXML()" class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip-trigger" title="Download .xml">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea 
+                    id="xmlOutput" 
+                    readonly 
+                    class="w-full h-32 bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-[11px] text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-y shadow-inner custom-scrollbar"
+                ></textarea>
+                
+                <button id="downloadBtn" onclick="downloadXML()" class="w-full mt-2 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl py-3 shadow-[0_4px_12px_-2px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-all duration-200 border border-emerald-600/50">
+                    <div class="absolute top-0 inset-x-0 h-px bg-white/20 rounded-t-xl"></div>
+                    <i data-lucide="arrow-down-to-line" class="w-4 h-4"></i>
+                    <span>Download File</span>
+                </button>
+            </div>
+            
+        </main>
+
+        <!-- Minimal Footer -->
+        <footer class="flex items-center justify-between px-2 pt-2">
+            <p class="text-xs font-medium text-slate-400">Crafted by <a href="https://www.instagram.com/editbyujjwal" target="_blank" class="text-slate-500 hover:text-indigo-600 transition-colors">@editbyujjwal</a></p>
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-slate-400 hover:text-indigo-600 transition-colors transform hover:scale-110">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                </a>
+                <a href="https://www.instagram.com/editbyujjwal" target="_blank" class="text-slate-400 hover:text-pink-600 transition-colors transform hover:scale-110">
+                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // --- Toast System (Redesigned for top-right sleekness) ---
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const isError = type === 'error';
+            const icon = isError ? 'alert-circle' : 'check-circle-2';
+            const bgClass = isError ? 'bg-red-50 border-red-100 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800';
+            const iconColor = isError ? 'text-red-500' : 'text-emerald-500';
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg backdrop-blur-md toast-enter-active ${bgClass} pointer-events-auto`;
+            
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 ${iconColor}"></i>
+                <span class="font-semibold text-xs tracking-wide">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+
+            setTimeout(() => {
+                toast.classList.replace('toast-enter-active', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Core Application Logic ---
+        let currentFileName = "Converted_Subtitles";
+        const fileInput = document.getElementById('fileInput');
+        const srtInput = document.getElementById('srtInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileStatus = document.getElementById('fileStatus');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        // Drag & Drop UX
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-indigo-500', 'bg-indigo-50/80', 'scale-[1.02]');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/80', 'scale-[1.02]');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            currentFileName = file.name.replace(/\.[^/.]+$/, "");
+            
+            // Show attached state
+            fileNameDisplay.textContent = file.name;
+            fileStatus.classList.remove('hidden');
+            fileStatus.classList.add('flex');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                srtInput.value = e.target.result;
+                showToast('File loaded successfully', 'success');
+            };
+            reader.readAsText(file);
+        }
+
+        // Parsing logic
+        function processSRT() {
+            const rawText = srtInput.value.trim();
+            if (!rawText) {
+                showToast('Please paste text or upload a file');
+                return;
+            }
+
+            const subtitles = parseSRTContent(rawText);
+            
+            if (subtitles.length === 0) {
+                showToast('No valid timestamps found');
+                return;
+            }
+
+            const xmlString = generateAMXML(subtitles);
+            
+            // UI Updates
+            const outputSection = document.getElementById('outputSection');
+            const xmlOutput = document.getElementById('xmlOutput');
+
+            xmlOutput.value = xmlString;
+            
+            outputSection.classList.remove('hidden');
+            outputSection.classList.add('flex');
+
+            showToast('XML Generated Successfully', 'success');
+        }
+
+        function parseSRTContent(text) {
+            const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const blocks = normalizedText.split(/\n{2,}/);
+            const subtitles = [];
+
+            blocks.forEach(block => {
+                const lines = block.trim().split('\n');
+                if (lines.length < 2) return;
+
+                let timeLineIndex = -1;
+                let match = null;
+                const timeRegex = /^(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,\.]\d{3})\s*(.*)$/;
+
+                for (let i = 0; i < lines.length; i++) {
+                    match = lines[i].match(timeRegex);
+                    if (match) {
+                        timeLineIndex = i;
+                        break;
                     }
                 }
 
-                if (content) {
-                    subtitles.push({ startMs, endMs, content });
+                if (timeLineIndex !== -1 && match) {
+                    const startMs = timeToMilliseconds(match[1]);
+                    const endMs = timeToMilliseconds(match[2]);
+                    let content = match[3] ? match[3].trim() : '';
+
+                    for (let i = timeLineIndex + 1; i < lines.length; i++) {
+                        const lineText = lines[i].trim();
+                        if (lineText) {
+                            if (content) content += '\n';
+                            content += lineText;
+                        }
+                    }
+
+                    if (content) {
+                        subtitles.push({ startMs, endMs, content });
+                    }
                 }
-            }
-        });
+            });
 
-        return subtitles;
-    }
+            return subtitles;
+        }
 
-    function timeToMilliseconds(timeString) {
-        // Handle both standard SRT comma (,) and alternative period (.)
-        const parts = timeString.split(/[,\.]/);
-        const timeParts = parts[0].split(':').map(Number);
-        const ms = Number(parts[1] || 0);
+        function timeToMilliseconds(timeString) {
+            const parts = timeString.split(/[,\.]/);
+            const timeParts = parts[0].split(':').map(Number);
+            const ms = Number(parts[1] || 0);
 
-        const hours = timeParts[0] || 0;
-        const minutes = timeParts[1] || 0;
-        const seconds = timeParts[2] || 0;
+            const hours = timeParts[0] || 0;
+            const minutes = timeParts[1] || 0;
+            const seconds = timeParts[2] || 0;
 
-        return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + ms;
-    }
+            return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + ms;
+        }
 
-    // --- XML Generation Logic ---
-    function generateAMXML(subtitles) {
-        const totalTime = subtitles[subtitles.length - 1].endMs;
-        const modifiedTime = Date.now();
-        
-        // Start ID arbitrary but sequential to match Alight Motion logic
-        let elementId = 102351839;
+        function generateAMXML(subtitles) {
+            const totalTime = subtitles[subtitles.length - 1].endMs;
+            const modifiedTime = Date.now();
+            let elementId = 102351839;
 
-        let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n`;
-        xml += `\n`;
-        
-        // Root Scene Setup
-        xml += `<scene title="${currentFileName}" width="720" height="1280" exportWidth="720" exportHeight="1280" precompose="dynamicResolution" bgcolor="#ffd8d8d8" totalTime="${totalTime}" fps="24" modifiedTime="${modifiedTime}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`;
+            let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n`;
+            xml += `<!-- Generated by SRT Converter Pro -->\n`;
+            
+            xml += `<scene title="${currentFileName}" width="720" height="1280" exportWidth="720" exportHeight="1280" precompose="dynamicResolution" bgcolor="#ffd8d8d8" totalTime="${totalTime}" fps="24" modifiedTime="${modifiedTime}" amver="1002351" ffver="106" am="com.alightcreative.motion/5.0.270.1002578" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`;
 
-        // Base background shape (Rectangle 1 as requested)
-        xml += `  <shape id="102351835" label="Rectangle 1" startTime="0" endTime="${totalTime}" fillType="color" mediaFillMode="fill" s=".rect">\n`;
-        xml += `    <transform>\n`;
-        xml += `      <location value="360.000000,640.000000,0.000000" />\n`;
-        xml += `    </transform>\n`;
-        xml += `    <property name="size" type="vec2" value="372.551697,712.413818" />\n`;
-        xml += `  </shape>\n`;
-
-        // Iterating over each parsed subtitle
-        subtitles.forEach(sub => {
-            // Escape special XML characters in subtitle content to prevent crashing
-            const safeContent = sub.content
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&apos;');
-
-            xml += `  <text id="${elementId++}" startTime="${sub.startMs}" endTime="${sub.endMs}" fillType="color" mediaFillMode="fill" size="18.000000" font="googlefonts?name=Roboto&amp;weight=400" wrapWidth="512" align="center">\n`;
+            xml += `  <shape id="102351835" label="Rectangle 1" startTime="0" endTime="${totalTime}" fillType="color" mediaFillMode="fill" s=".rect">\n`;
             xml += `    <transform>\n`;
-            xml += `      <location value="360.000000,640.000000,0.000000" />\n`;
-            xml += `    </transform>\n`;
-            xml += `    <fillColor value="#ff7f7f7f" />\n`;
-            xml += `    <content>${safeContent}</content>\n`;
-            xml += `  </text>\n`;
-        });
-
-        xml += `</scene>`;
-        return xml;
-    }
-
-    // --- Download Handler ---
-    function downloadXML() {
-        const xmlData = document.getElementById('xmlOutput').value;
-        if (!xmlData) return;
-
-        const blob = new Blob([xmlData], { type: "text/xml" });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${currentFileName}.xml`;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Cleanup
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-</script>
-
-</body>
-</html>
+            xml += `      <location value="360.000000,640.000000,0.00
